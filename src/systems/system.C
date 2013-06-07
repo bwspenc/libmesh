@@ -324,7 +324,8 @@ void System::restrict_vectors ()
     {
       NumericVector<Number>* v = pos->second;
 
-      if (_vector_projections[pos->first])
+//      if (_vector_projections[pos->first])
+      if (false) //BWS HACK -- skip -- project_vector depends on old dof indices being set for XFEM
         {
           this->project_vector (*v, this->vector_is_adjoint(pos->first));
         }
@@ -350,8 +351,9 @@ void System::restrict_vectors ()
   const std::vector<dof_id_type>& send_list = _dof_map->get_send_list ();
 
   // Restrict the solution on the coarsened cells
-  if (_solution_projection)
-    this->project_vector (*solution);
+//BWS HACK -- skip -- project_vector depends on old dof indices being set for XFEM
+//  if (_solution_projection)
+//    this->project_vector (*solution);
 
 #ifdef LIBMESH_ENABLE_GHOSTED
   current_local_solution->init(this->n_dofs(),
@@ -361,8 +363,14 @@ void System::restrict_vectors ()
   current_local_solution->init(this->n_dofs());
 #endif
 
-  if (_solution_projection)
-    solution->localize (*current_local_solution, send_list);
+// BWS at this point, current_local_solution is resized, but solution isn't -- it gets resized in System::reinit()
+//  std::cout<<"BWS ndofs: "<<this->n_dofs()<<" "<<this->n_local_dofs()<<std::endl;
+//  std::cout<<"BWS cls size: "<<current_local_solution->size()<<" s size: "<<solution->size()<<std::endl;
+//  std::cout<<"BWS sl size: "<<send_list.size()<<std::endl;
+
+//BWS HACK -- skip -- localize doesn't work with XFEM because sizes are out of whack
+//  if (_solution_projection)
+//    solution->localize (*current_local_solution, send_list);
 
 #endif // LIBMESH_ENABLE_AMR
 }

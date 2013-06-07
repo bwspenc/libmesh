@@ -195,7 +195,7 @@ void EquationSystems::reinit ()
         // And clean up the send_list before we use it again
         sys.get_dof_map().prepare_send_list();
 
-        sys.prolong_vectors();
+        sys.prolong_vectors();//BWS HACK -- needed to skip this at one point for XFEM, now it's been modified
       }
     mesh_changed = true;
     dof_constraints_created = true;
@@ -211,6 +211,7 @@ void EquationSystems::reinit ()
   // Try to coarsen the mesh, then restrict each system's vectors
   // if necessary
   if (mesh_refine.coarsen_elements())
+  //if (false)//BWS HACK -- skip for XFEM if adding elements through refinement
     {
       for (unsigned int i=0; i != this->n_systems(); ++i)
         {
@@ -238,6 +239,7 @@ void EquationSystems::reinit ()
   // Try to refine the mesh, then prolong each system's vectors
   // if necessary
   if (mesh_refine.refine_elements())
+  //if (false)//BWS HACK -- skip for XFEM if adding elements through refinement
     {
       for (unsigned int i=0; i != this->n_systems(); ++i)
         {
@@ -260,6 +262,7 @@ void EquationSystems::reinit ()
   // If the mesh has changed, systems will need to create new dof
   // constraints and update their global solution vectors
   if (mesh_changed)
+  //if (true) //BWS HACK -- mesh_changed may not actually get set for XFEM case, although seems like it does
     {
       for (unsigned int i=0; i != this->n_systems(); ++i)
         this->get_system(i).reinit();
